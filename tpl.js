@@ -1,4 +1,3 @@
-
 (function(window , undefined){
     var cache = {};
     var etic = window.etic = function (str, data){
