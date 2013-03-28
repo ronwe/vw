@@ -1,6 +1,20 @@
 ( function(window , undefined){
 	var jsonp_callId = new Date
 
+	var cache = (function (){
+		var storage = window.localStorage
+		var _cache = {}
+		return {
+			set : function(name , value){
+				_cache[name] = value
+				}
+			,get : function(name){
+				return _cache[name]
+				}
+			}
+	})()
+
+
 	function newXHR(){
 			return new window.XMLHttpRequest()
 			}
@@ -31,8 +45,16 @@
 			return (url.indexOf('?')<0? '?':'&') + append
 			}	
 		if (data) {
-			data = fn.http_build_query(data)
+			data = http_build_query(data)
 			if ('POST' != method ) options.url += _appendUrl(options.url , data)
+			}
+
+		if (options.cacheAble && 'POST' != method && cache.get(options.url]) ){
+			callBack(cache.get(options.url) )
+			callBack = function(ret){
+				cache.set(options.url , ret , options.cacheAble)
+				}
+
 			}
 
 		if ('JSONP' == method || 'SCRIPT' == method){
@@ -92,11 +114,9 @@
 			data = null
 
 		xhr.open(method, options.url, async)  
-		if (options.headers){
-			fn.each(option.headers , function(head_content , head_key){
+		options.headers && option.headers.forEach( function(head_content , head_key){
 				 xhr.setRequestHeader(head_key , head_content)   
 				})
-			}
 		xhr.send(data)  
 
 		if (options.timeout) {
@@ -117,6 +137,7 @@
 			   'data' :  args[1] ,
 			   'callback' : args[2] ,
 			   'method' : method , 
+			   'cacheAble' : args[4] || true ,
 			   'data_type' : args[3]})	
 		
 		}
