@@ -12,12 +12,13 @@
 		var _local = {}
 			,_session = {}
 			,_cache = {}
-		(function (){
+		
+		;(function (){
 			var local = storage.getItem(domStoreId)
 			if (local) _local =  JSON.parse(local) 
 			var sess = session.getItem(domStoreId)
 			if (sess) _session =  JSON.parse(sess) 
-			})() 
+			}) 
 
 		var delay_store
 		return {
@@ -80,7 +81,7 @@
 			if ('POST' != method ) options.url += _appendUrl(options.url , data)
 			}
 
-		if (options.cacheAble && 'POST' != method && cache.get(options.url]) ){
+		if (options.cacheAble && 'POST' != method && cache.get(options.url) ){
 			callBack(cache.get(options.url) )
 			callBack = function(ret){
 				cache.set(options.url , ret , options.cacheAble)
