@@ -26,11 +26,11 @@
 			type : persist | session | page,default is persist
 			*/
 			set : function(name , value , type){
-				_cache[name] = value
 				var domStore = ({'persist' : storage , 'session' : session ,'page': 'none'})[type] || storage	
-					,domCache = ({'persist' : _local , 'session' : _session})[type] || _local	
+					,domCache = ({'persist' : _local , 'session' : _session , 'page' : _cache })[type] || _local	
+
+				domCache[name] = value
 				if ('none' != domStore) {
-					domCache[name] = value
 					
 					if (delay_store) clearTimeout(delay_store) 
 					delay_store = setTimeout(function(){
@@ -41,7 +41,7 @@
 					}
 				}
 			,get : function(name){
-				return _cache[name] = _cache[name] || _session[name] || _local[name]
+				return  _cache[name] || _session[name] || _local[name]
 				}
 			}
 	})()
