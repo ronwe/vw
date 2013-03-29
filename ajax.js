@@ -3,13 +3,44 @@
 
 	var cache = (function (){
 		var storage = window.localStorage
-		var _cache = {}
+			,session = window.sessionStorage
+			,setTimeout = window.setTimeout
+			,clearTimeout = window.clearTimeout
+		var delay_ttl = 1000
+			,domStoreId = 'cache'
+
+		var _local = {}
+			,_session = {}
+			,_cache = {}
+		(function (){
+			var local = storage.getItem(domStoreId)
+			if (local) _local =  JSON.parse(local) 
+			var sess = session.getItem(domStoreId)
+			if (sess) _session =  JSON.parse(sess) 
+			})() 
+
+		var delay_store
 		return {
-			set : function(name , value){
+			/*
+			type : persist | session | page,default is persist
+			*/
+			set : function(name , value , type){
 				_cache[name] = value
+				var domStore = ({'persist' : storage , 'session' : session ,'page': 'none'})[type] || storage	
+					,domCache = ({'persist' : _local , 'session' : _session})[type] || _local	
+				if ('none' != domStore) {
+					domCache[name] = value
+					
+					if (delay_store) clearTimeout(delay_store) 
+					delay_store = setTimeout(function(){
+						domStore.setItem(domStoreId , JSON.stringify(domCache)) 
+						delay_store = null	
+						} , delay_ttl)
+					
+					}
 				}
 			,get : function(name){
-				return _cache[name]
+				return _cache[name] = _cache[name] || _session[name] || _local[name]
 				}
 			}
 	})()
