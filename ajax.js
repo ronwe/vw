@@ -18,7 +18,7 @@
 			if (local) _local =  JSON.parse(local) 
 			var sess = session.getItem(domStoreId)
 			if (sess) _session =  JSON.parse(sess) 
-			}) 
+			})() 
 
 		var delay_store
 		return {
@@ -28,7 +28,6 @@
 			set : function(name , value , type){
 				var domStore = ({'persist' : storage , 'session' : session ,'page': 'none'})[type] || storage	
 					,domCache = ({'persist' : _local , 'session' : _session , 'page' : _cache })[type] || _local	
-
 				domCache[name] = value
 				if ('none' != domStore) {
 					
@@ -40,8 +39,8 @@
 					
 					}
 				}
-			,get : function(name){
-				return  _cache[name] || _session[name] || _local[name]
+			,get : function(name , type){
+				return ( ({'persist' : _local , 'session' : _session , 'page' : _cache })[type] || _local)[name]
 				}
 			}
 	})()
@@ -81,12 +80,18 @@
 			if ('POST' != method ) options.url += _appendUrl(options.url , data)
 			}
 
-		if (options.cacheAble && 'POST' != method && cache.get(options.url) ){
-			callBack(cache.get(options.url) )
+		if (options.cacheAble && 'POST' != method  ){
+			var userCbk = callBack
+				,cacheRet = cache.get(options.url , options.cacheAble)
+			if (cacheRet){
+				callBack(cacheRet )
+				userCbk = null
+			}
+
 			callBack = function(ret){
 				cache.set(options.url , ret , options.cacheAble)
+				userCbk && userCbk(ret)
 				}
-
 			}
 
 		if ('JSONP' == method || 'SCRIPT' == method){
